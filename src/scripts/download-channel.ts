@@ -1,15 +1,17 @@
 "use strict";
 const fs = require("fs");
 const path = require("path");
-const { initAuth } = require("../modules/auth");
-const {
+import { TelegramClient } from "telegram";
+import { initAuth } from "../modules/auth";
+
+import {
   getMessages,
-  getMessageDetail,
   downloadMessageMedia,
-} = require("../modules/messages");
+  getMessageDetail,
+} from "../modules/messages";
+import { getMediaPath } from "../utils/helper";
 const {
   getMediaType,
-  getMediaPath,
   checkFileExist,
   appendToJSONArrayFile,
   wait,
@@ -20,18 +22,19 @@ const {
 } = require("../utils/file-helper");
 const logger = require("../utils/logger");
 const { getDialogName, getAllDialogs } = require("../modules/dialoges");
-const {
-  downloadOptionInput,
-  selectInput,
-} = require("../utils/input-helper");
+import { downloadOptionInput } from "../utils/input-helper";
+const { selectInput } = require("../utils/input-helper");
 
 const MAX_PARALLEL_DOWNLOAD = 5;
-const MESSAGE_LIMIT = 10;
+const MESSAGE_LIMIT = 100;
 
 /**
  * Handles downloading media from a Telegram channel
  */
-class DownloadChannel {
+export default class DownloadChannel {
+  outputFolder: undefined | [];
+  downloadableFiles: undefined | { all: any };
+
   constructor() {
     this.outputFolder = null;
     this.downloadableFiles = null;
@@ -102,64 +105,69 @@ class DownloadChannel {
 
   /**
    * Recursively fetches and downloads all available media from the channel
-   * @param {Object} client The Telegram client instance
-   * @param {Number} channelId The channel ID
-   * @param {Number} offsetMsgId The message offset
+   * @param client The Telegram client instance
+   * @param channelId The channel ID
+   * @param offsetMsgId The message offset
    */
-  async downloadChannel(client, channelId, offsetMsgId = 0) {
+  async downloadChannel(
+    client: TelegramClient,
+    channelId: number,
+    offsetMsgId: number = 0
+  ) {
     try {
       this.outputFolder = path.join(
         process.cwd(),
         "export",
         channelId.toString()
       );
-      const messages = await getMessages(
-        client,
-        channelId,
-        MESSAGE_LIMIT,
-        offsetMsgId
-      );
-      if (!messages.length) {
-        logger.info("No more messages to download");
-        return;
-      }
-      const ids = messages.map((m) => m.id);
-      const details = await getMessageDetail(client, channelId, ids);
-      const downloadQueue = [];
-
-      for (const msg of details) {
-        if (this.canDownload(msg)) {
-          logger.info(`Downloading ${msg.id}`);
-          downloadQueue.push(
-            downloadMessageMedia(
-              client,
-              msg,
-              getMediaPath(msg, this.outputFolder)
-            )
-          );
-        } else {
-          // logger.info(`No media to download for ${msg.id}`);
+      while (true) {
+        const messages = await getMessages(
+          client,
+          channelId,
+          MESSAGE_LIMIT,
+          offsetMsgId
+        );
+        if (!messages.length) {
+          logger.info("No more messages to download");
+          return;
         }
-        if (downloadQueue.length >= MAX_PARALLEL_DOWNLOAD) {
-          logger.info(`Processing ${MAX_PARALLEL_DOWNLOAD} downloads`);
+        const ids = messages.map((m) => m.id);
+
+        // function async downloadMessages()
+        {
+          const details = await getMessageDetail(client, channelId, ids);
+          const downloadQueue: Promise<boolean>[] = [];
+          for (const msg of details) {
+            if (this.canDownload(msg)) {
+              logger.info(`Downloading ${msg.id}`);
+              const resultPromise = downloadMessageMedia(
+                client,
+                msg,
+                getMediaPath(msg, this.outputFolder)
+              );
+              downloadQueue.push(resultPromise);
+            } else {
+              // logger.info(`No media to download for ${msg.id}`);
+            }
+            if (downloadQueue.length >= MAX_PARALLEL_DOWNLOAD) {
+              logger.info(`Processing ${MAX_PARALLEL_DOWNLOAD} downloads`);
+              await Promise.all(downloadQueue);
+              downloadQueue.length = 0;
+              await wait(3);
+            }
+          }
+
           await Promise.all(downloadQueue);
-          downloadQueue.length = 0;
-          await wait(3);
+          this.recordMessages(details);
         }
+        
+        updateLastSelection({
+          messageOffsetId: messages[messages.length - 1].id,
+        });
+
+        await wait(1);
+        offsetMsgId = messages[messages.length - 1].id;
       }
-
-      await Promise.all(downloadQueue);
-      this.recordMessages(details);
-      updateLastSelection({
-        messageOffsetId: messages[messages.length - 1].id,
-      });
-
-      await wait(1);
-      await this.downloadChannel(
-        client,
-        channelId,
-        messages[messages.length - 1].id
-      );
     } catch (err) {
       logger.error("An error occurred:");
       console.error(err);
@@ -183,7 +191,9 @@ class DownloadChannel {
       );
       channelId = selectedChannel;
     }
-    if (!downloadableFiles) downloadableFiles = await downloadOptionInput();
+    if (!downloadableFiles) {
+      downloadableFiles = await downloadOptionInput();
+    }
 
     this.downloadableFiles = downloadableFiles;
 
@@ -201,8 +211,7 @@ class DownloadChannel {
    * Main entry point: initializes auth, sets up output folder, and starts download
    */
   async handle(options = {}) {
-    let client;
-    await wait(1);
+    let client: TelegramClient;
     try {
       client = await initAuth();
       const { channelId, messageOffsetId } = await this.configureDownload(
@@ -222,5 +231,3 @@ class DownloadChannel {
     }
   }
 }
-
-module.exports = DownloadChannel;

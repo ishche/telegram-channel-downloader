@@ -159,7 +159,7 @@ const downloadOptionInput = async () => {
     "pdf",
   ];
 
-  let fileExtensions = await multipleChoice("Choose file to download", fileTypeArray, defaultSelected);
+  const fileExtensions = await multipleChoice("Choose file to download", fileTypeArray, defaultSelected);
 
   if (fileExtensions.includes("custom")) {
     const customExtensions = await textInput("Enter file extension separated by comma: ");

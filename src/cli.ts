@@ -1,10 +1,10 @@
 "use strict";
 // example command script
 // - node cli script-name --option1=value1 --option2=value2
+import * as fs from "fs";
+import * as path from "path";
+import { glob } from "glob";
 
-const fs = require("fs");
-const path = require("path");
-const { glob } = require("glob");
 const logger = require("./utils/logger");
 const commandFile = path.join(__dirname, "./scripts");
 
@@ -31,10 +31,10 @@ process.on("unhandledRejection", (reason, promise) => {
  * Loads command classes from the specified file paths and returns an object
  * mapping command signatures to their respective file paths.
  *
- * @param {string[]} commandFiles - An array of file paths to the command classes.
+ * @param commandFiles - An array of file paths to the command classes.
  * @returns {Object} An object where the keys are command signatures and the values are file paths.
  */
-function loadCommands(commandFiles) {
+function loadCommands(commandFiles: string[]): Object {
   const commands = {};
   commandFiles.forEach((filePath) => {
     const CommandClass = require(filePath);

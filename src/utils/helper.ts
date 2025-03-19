@@ -90,7 +90,7 @@ const checkFileExist = (message, outputFolder) => {
 };
 
 // Get the path to save the media file
-const getMediaPath = (message, outputFolder) => {
+export const getMediaPath = (message, outputFolder) => {
   if (!message || !message.media) return "unknown";
 
   let fileName = `${message.id}_file`;
@@ -170,7 +170,7 @@ const filterString = (string) => {
 };
 
 // Stringify an object with circular references
-const circularStringify = (obj, indent = 2) => {
+const circularStringify = (obj, indent: number = 2) => {
   const cache = new Set();
   const retVal = JSON.stringify(
     obj,
@@ -190,12 +190,12 @@ const circularStringify = (obj, indent = 2) => {
 const appendToJSONArrayFile = (filePath, dataToAppend) => {
   try {
     if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, circularStringify(dataToAppend, null, 2));
+      fs.writeFileSync(filePath, circularStringify(dataToAppend, 2));
     } else {
       const data = fs.readFileSync(filePath);
       const json = JSON.parse(data);
       json.push(dataToAppend);
-      fs.writeFileSync(filePath, circularStringify(json, null, 2));
+      fs.writeFileSync(filePath, circularStringify(json, 2));
     }
   } catch (e) {
     logMessage.error(`Error appending to JSON Array file ${filePath}`);
@@ -206,7 +206,6 @@ const appendToJSONArrayFile = (filePath, dataToAppend) => {
 module.exports = {
   getMediaType,
   checkFileExist,
-  getMediaPath,
   getDialogType,
   logMessage,
   wait,

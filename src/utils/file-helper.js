@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { logMessage } = require("./helper");
 
-const CONFIG_FILE = path.join(__dirname, "../config.json");
+const CONFIG_FILE = path.join(process.cwd(), "config.json");
 const LAST_SELECTION_FILE = path.join(
   __dirname,
   "../export/last_selection.json"

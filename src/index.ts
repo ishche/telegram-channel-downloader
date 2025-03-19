@@ -1,8 +1,9 @@
-const ChannelDownloader = require("./scripts/download-channel");
+import ChannelDownloader from "./scripts/download-channel"
+
 const channelDownloader = new ChannelDownloader();
 
 const channelId = "";
-const downloadableFiles = {
+const downloadableFiles: Downloadable = {
   webpage: true,
   poll: true,
   geo: true,

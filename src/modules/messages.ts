@@ -2,8 +2,10 @@ const fs = require("fs");
 const path = require("path");
 const logger = require("../utils/logger");
 const { circularStringify } = require("../utils/helper");
+import { Api, TelegramClient } from "telegram";
+import { TotalList } from "telegram/Helpers";
 
-const getMessages = async (client, channelId, limit = 10, offsetId = 0) => {
+export const getMessages = async (client: TelegramClient, channelId, limit = 10, offsetId = 0): Promise<TotalList<Api.Message>> => {
   if (!client || !channelId) {
     throw new Error("Client and channelId are required");
   }
@@ -16,7 +18,7 @@ const getMessages = async (client, channelId, limit = 10, offsetId = 0) => {
   }
 };
 
-const getMessageDetail = async (client, channelId, messageIds) => {
+export const getMessageDetail = async (client: TelegramClient, channelId: number, messageIds: number[]): Promise<TotalList<Api.Message>> => {
   if (!client || !channelId || !messageIds) {
     throw new Error("Client, channelId, and messageIds are required");
   }
@@ -29,7 +31,7 @@ const getMessageDetail = async (client, channelId, messageIds) => {
   }
 };
 
-const downloadMessageMedia = async (client, message, mediaPath) => {
+export const downloadMessageMedia = async (client: TelegramClient, message, mediaPath): Promise<boolean> => {
   try {
     if (!client || !message || !mediaPath) {
       logger.error("Client, message, and mediaPath are required");
@@ -79,10 +81,4 @@ const downloadMessageMedia = async (client, message, mediaPath) => {
     console.error(err);
     return false;
   }
-};
-
-module.exports = {
-  getMessages,
-  getMessageDetail,
-  downloadMessageMedia,
 };

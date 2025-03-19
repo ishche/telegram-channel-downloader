@@ -1,5 +1,6 @@
-const { TelegramClient } = require("telegram");
-const { updateCredentials, getCredentials } = require("../utils/file-helper");
+import { TelegramClient } from "telegram";
+import { getCredentials } from "../utils/file-helper";
+const { updateCredentials } = require("../utils/file-helper");
 const { StringSession } = require("telegram/sessions");
 const { logMessage } = require("../utils/helper");
 
@@ -20,10 +21,10 @@ const stringSession = new StringSession(sessionId || "");
 
 /**
  * Initializes the authentication process for the Telegram client.
- * @param {string} [otpPreference=OTP_METHOD.APP] - The preferred method for receiving the OTP (either 'app' or 'sms').
- * @returns {Promise<TelegramClient>} - The authenticated Telegram client.
+ * @param otpPreference - The preferred method for receiving the OTP (either 'app' or 'sms').
+ * @returns The authenticated Telegram client.
  */
-const initAuth = async (otpPreference = OTP_METHOD.APP) => {
+export const initAuth = async (otpPreference: string = OTP_METHOD.APP): Promise<TelegramClient> => {
   const client = new TelegramClient(stringSession, apiId, apiHash, {
     connectionRetries: 5,
   });
@@ -68,6 +69,3 @@ const initAuth = async (otpPreference = OTP_METHOD.APP) => {
   }
 };
 
-module.exports = {
-  initAuth,
-};
