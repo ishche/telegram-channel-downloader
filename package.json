@@ -4,8 +4,9 @@
   "description": "scrap and download all media and message from telegram channel, group or a user",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+    "watch": "tsc -w",
+    "tsc": "tsc",
+    "start": "node ./dist/index.js"
   },
   "nodemonConfig": {
     "ignore": [
@@ -34,5 +35,11 @@
     "inquirer": "^8.2.6",
     "mime-db": "^1.52.0",
     "telegram": "^2.21.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.2"
   }
 }

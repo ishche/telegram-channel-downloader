@@ -1,4 +1,5 @@
 config.json
+dist
 export/
 .DS_Store
 node_modules/
