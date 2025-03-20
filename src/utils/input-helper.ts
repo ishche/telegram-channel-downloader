@@ -1,5 +1,5 @@
-const inquirer = require("inquirer");
-const { MEDIA_TYPES } = require("./helper");
+import * as inquirer from "inquirer";
+import { MEDIA_TYPES } from "./helper";
 
 /**
  * Prompts the user to enter their mobile number with country code.
@@ -44,7 +44,7 @@ const otpInput = async () => {
  * @param {string} [message="Please Enter"] - The message to display.
  * @returns {Promise<string>} The entered text.
  */
-const textInput = async (message = "Please Enter") => {
+export const textInput = async (message = "Please Enter") => {
   const question = {
     type: "input",
     name: "text",
@@ -62,7 +62,7 @@ const textInput = async (message = "Please Enter") => {
  * @param {number} [max=Infinity] - The maximum value.
  * @returns {Promise<number>} The entered number.
  */
-const numberInput = async (message = "Please enter a number", min = -Infinity, max = Infinity) => {
+export const numberInput = async (message = "Please enter a number", min = -Infinity, max = Infinity) => {
   const question = {
     type: "input",
     name: "number",
@@ -88,7 +88,7 @@ const numberInput = async (message = "Please enter a number", min = -Infinity, m
  * @param {string} [message="Please answer with yes or no"] - The message to display.
  * @returns {Promise<boolean>} The user's response.
  */
-const booleanInput = async (message = "Please answer with yes or no") => {
+export const booleanInput = async (message = "Please answer with yes or no") => {
   const question = {
     type: "confirm",
     name: "confirm",
@@ -141,7 +141,7 @@ const multipleChoice = async (message = "Please select multiple choices", option
  * Prompts the user to select file types to download and handles custom file extensions.
  * @returns {Promise<Object>} The selected file types to download.
  */
-const downloadOptionInput = async () => {
+export const downloadOptionInput = async () => {
   const fileTypeArray = [
     MEDIA_TYPES.IMAGE,
     MEDIA_TYPES.VIDEO,
@@ -159,7 +159,7 @@ const downloadOptionInput = async () => {
     "pdf",
   ];
 
-  const fileExtensions = await multipleChoice("Choose file to download", fileTypeArray, defaultSelected);
+  let fileExtensions = await multipleChoice("Choose file to download", fileTypeArray, defaultSelected);
 
   if (fileExtensions.includes("custom")) {
     const customExtensions = await textInput("Enter file extension separated by comma: ");
@@ -183,15 +183,3 @@ const downloadOptionInput = async () => {
 
   return filesToDownload;
 };
-
-module.exports = {
-  textInput,
-  otpInput,
-  mobileNumberInput,
-  numberInput,
-  booleanInput,
-  selectInput,
-  multipleChoice,
-  downloadOptionInput,
-};
-

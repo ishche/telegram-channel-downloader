@@ -1,9 +1,9 @@
-const ejs = require('ejs');
-const fs = require("fs");
-const path = require('path');
-const { updateLastSelection } = require("../utils/file-helper");
-const { logMessage, getDialogType, circularStringify } = require("../utils/helper");
-const { numberInput, textInput, booleanInput } = require('../utils/input-helper');
+import * as  ejs from 'ejs';
+import * as  fs from "fs";
+import * as  path from 'path';
+import { updateLastSelection } from "../utils/file-helper";
+import { logMessage, getDialogType, circularStringify } from "../utils/helper";
+import { numberInput, textInput, booleanInput } from '../utils/input-helper';
 
 /**
  * Fetches all dialogs from the client, sorts them by name, and exports them to JSON and HTML files.
@@ -32,10 +32,10 @@ const getAllDialogs = async (client, sortByName = true) => {
             dialogList.sort((a, b) => a.name.localeCompare(b.name));
         }
 
-        const channelTemplateFile = path.resolve(__dirname, '../templates/channels.ejs');
+        const channelTemplateFile = path.resolve(process.cwd(), 'templates', 'channels.ejs');
         const renderedHtml = await ejs.renderFile(channelTemplateFile, { channels: dialogList });
 
-        fs.writeFileSync("./export/raw_dialog_list.json", circularStringify(dialogs, null, 2));
+        fs.writeFileSync("./export/raw_dialog_list.json", circularStringify(dialogs, 2));
         fs.writeFileSync("./export/dialog_list.html", renderedHtml);
         fs.writeFileSync("./export/dialog_list.json", JSON.stringify(dialogList, null, 2));
 

@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Define media types
-const MEDIA_TYPES = {
+export const MEDIA_TYPES = {
   IMAGE: "image",
   VIDEO: "video",
   AUDIO: "audio",
@@ -30,7 +30,7 @@ const consoleColors = {
 };
 
 // Get the media type of a message
-const getMediaType = (message) => {
+export const getMediaType = (message) => {
   if (!message.media) return MEDIA_TYPES.OTHERS;
 
   const { media } = message;
@@ -58,7 +58,7 @@ const getMediaType = (message) => {
 };
 
 // Check if a file already exists
-const checkFileExist = (message, outputFolder) => {
+export const checkFileExist = (message, outputFolder) => {
   if (!message || !message.media) return false;
 
   let fileName = `${message.id}_file`;
@@ -134,7 +134,7 @@ export const getMediaPath = (message, outputFolder) => {
 };
 
 // Get the type of dialog
-const getDialogType = (dialog) => {
+export const getDialogType = (dialog) => {
   if (dialog.isChannel) return "Channel";
   if (dialog.isGroup) return "Group";
   if (dialog.isUser) return "User";
@@ -142,12 +142,12 @@ const getDialogType = (dialog) => {
 };
 
 // Logging utility
-const logMessage = {
+export const logMessage = {
   info: (message, icon=true) => {
     console.log(`📢: ${consoleColors.magenta}${message}${consoleColors.reset}`);
   },
-  error: (message) => {
-    console.log(`❌ ${consoleColors.red}${message}${consoleColors.reset}`);
+  error: (message, err?) => {
+    console.log(`❌ ${consoleColors.red}${message}${consoleColors.reset}: ${err}`);
   },
   success: (message) => {
     console.log(`✅ ${consoleColors.cyan}${message}${consoleColors.reset}`);
@@ -158,7 +158,7 @@ const logMessage = {
 };
 
 // Wait for a specified number of seconds
-const wait = (seconds) => {
+export const wait = (seconds) => {
   return new Promise((resolve) => {
     setTimeout(resolve, seconds * 1000);
   });
@@ -170,7 +170,7 @@ const filterString = (string) => {
 };
 
 // Stringify an object with circular references
-const circularStringify = (obj, indent: number = 2) => {
+export const circularStringify = (obj, indent: number = 2) => {
   const cache = new Set();
   const retVal = JSON.stringify(
     obj,
@@ -187,7 +187,7 @@ const circularStringify = (obj, indent: number = 2) => {
 };
 
 // Append data to a JSON array file
-const appendToJSONArrayFile = (filePath, dataToAppend) => {
+export const appendToJSONArrayFile = (filePath, dataToAppend) => {
   try {
     if (!fs.existsSync(filePath)) {
       fs.writeFileSync(filePath, circularStringify(dataToAppend, 2));
@@ -203,14 +203,3 @@ const appendToJSONArrayFile = (filePath, dataToAppend) => {
   }
 };
 
-module.exports = {
-  getMediaType,
-  checkFileExist,
-  getDialogType,
-  logMessage,
-  wait,
-  filterString,
-  appendToJSONArrayFile,
-  circularStringify,
-  MEDIA_TYPES,
-};

@@ -1,11 +1,12 @@
-const fs = require("fs");
-const path = require("path");
-const { logMessage } = require("./helper");
+import * as  fs from "fs";
+import * as path from "path";
+import { logMessage } from "./helper";
 
 const CONFIG_FILE = path.join(process.cwd(), "config.json");
 const LAST_SELECTION_FILE = path.join(
-  __dirname,
-  "../export/last_selection.json"
+  process.cwd(),
+  "export",
+  "last_selection.json"
 );
 
 /**
@@ -63,7 +64,7 @@ const updateCredentials = (obj) => {
  * @returns {Object} The parsed credentials from the config file.
  * @throws Will log an error message and exit the process if the config file cannot be read or parsed.
  */
-const getCredentials = () => {
+export const getCredentials = () => {
   try {
     const data = readFileSync(CONFIG_FILE);
     return JSON.parse(data);
@@ -80,7 +81,7 @@ const getCredentials = () => {
  *
  * @returns {Object} The last selection data parsed from the file. Returns an empty object if an error occurs.
  */
-const getLastSelection = () => {
+export const getLastSelection = () => {
   try {
     const data = readFileSync(LAST_SELECTION_FILE, false);
     return JSON.parse(data);
@@ -96,20 +97,13 @@ const getLastSelection = () => {
  * and writes the result to the LAST_SELECTION_FILE. If an error occurs
  * during the process, it logs an error message.
  *
- * @param {Object} object - The object to merge with the last selection.
+ * @param object - The object to merge with the last selection.
  */
-const updateLastSelection = (object) => {
+export const updateLastSelection = (lastSelection: LastSelection): void => {
   try {
-    const last = { ...getLastSelection(), ...object };
+    const last = { ...getLastSelection(), ...lastSelection };
     writeFileSync(LAST_SELECTION_FILE, last);
   } catch (err) {
-    logMessage.error("Failed to update last selection", err);
+    logMessage.error("Failed to update last selection " + JSON.stringify(err), err);
   }
-};
-
-module.exports = {
-  updateCredentials,
-  getCredentials,
-  getLastSelection,
-  updateLastSelection,
 };

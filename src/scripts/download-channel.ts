@@ -9,13 +9,7 @@ import {
   downloadMessageMedia,
   getMessageDetail,
 } from "../modules/messages";
-import { getMediaPath } from "../utils/helper";
-const {
-  getMediaType,
-  checkFileExist,
-  appendToJSONArrayFile,
-  wait,
-} = require("../utils/helper");
+import { getMediaPath, getMediaType, checkFileExist, appendToJSONArrayFile, wait } from "../utils/helper";
 const {
   updateLastSelection,
   getLastSelection,
@@ -26,12 +20,17 @@ import { downloadOptionInput } from "../utils/input-helper";
 const { selectInput } = require("../utils/input-helper");
 
 const MAX_PARALLEL_DOWNLOAD = 5;
-const MESSAGE_LIMIT = 100;
+const MESSAGE_LIMIT = 10;
+
 
 /**
  * Handles downloading media from a Telegram channel
  */
 export default class DownloadChannel {
+  static description() {
+    return "Download all media from a channel";
+  }
+  
   outputFolder: undefined | [];
   downloadableFiles: undefined | { all: any };
 
@@ -43,10 +42,6 @@ export default class DownloadChannel {
     if (!fs.existsSync(exportPath)) {
       fs.mkdirSync(exportPath);
     }
-  }
-
-  static description() {
-    return "Download all media from a channel";
   }
 
   /**
@@ -121,6 +116,7 @@ export default class DownloadChannel {
         channelId.toString()
       );
       while (true) {
+        logger.info(`New iteration offsetMsgId: ${offsetMsgId}`);
         const messages = await getMessages(
           client,
           channelId,

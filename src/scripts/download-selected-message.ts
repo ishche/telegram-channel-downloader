@@ -1,9 +1,11 @@
-const { initAuth } = require("../modules/auth");
+import { initAuth } from "../modules/auth";
+import * as path from "path";
+import { downloadMessageMedia } from "../modules/messages";
 const { getMessageDetail } = require("../modules/messages");
 const { logMessage, getMediaPath } = require("../utils/helper");
 const { textInput } = require("../utils/input-helper");
 
-class DownloadMessage {
+export default class DownloadMessage {
   // -------------------------------
   // Accepts the following parameters:
   // - Channel ID
@@ -14,12 +16,7 @@ class DownloadMessage {
   }
 
   async downloadMessage(client, channelId, messageIds) {
-    const outputFolder = (outputFolder = path.join(
-      process.cwd(),
-      "export",
-      channelId.toString()
-    ));
-    
+    const outputFolder = path.join(process.cwd(), "export", channelId.toString());
     const messageArr = await getMessageDetail(client, channelId, messageIds);
     for (const message of messageArr) {
       downloadMessageMedia(
@@ -32,8 +29,9 @@ class DownloadMessage {
   }
 
   async handle() {
+    let client;
     try {
-      const client = await initAuth();
+      client = await initAuth();
       const channelId = textInput("Please Enter Channel ID: ");
       const messageIdsText = textInput(
         "Please Enter Message Id(s) (separated by comma): "
@@ -52,5 +50,3 @@ class DownloadMessage {
     }
   }
 }
-
-module.exports = DownloadMessage;

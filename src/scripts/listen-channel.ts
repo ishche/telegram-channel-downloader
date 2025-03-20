@@ -1,3 +1,5 @@
+import { TelegramClient } from "telegram";
+
 const { NewMessage } = require("telegram/events");
 const { getAllDialogs, getDialogName } = require("../modules/dialoges");
 const { downloadMessageMedia, getMessageDetail } = require("../modules/messages");
@@ -7,7 +9,9 @@ const { initAuth } = require("../modules/auth");
 const { selectInput } = require("../utils/input-helper");
 const path = require("path");
 
-class ListenChannel {
+export default class ListenChannel {
+  channelId: number | undefined
+  client: TelegramClient | undefined
   constructor() {
     this.channelId = null;
     this.client = null;
@@ -53,7 +57,7 @@ class ListenChannel {
     }
   }
 
-  async handle(options = {}) {
+  async handle(options: {channelId?: string}  = {}) {
     let channelId = Number(options.channelId);
     let client;
     await wait(1);
@@ -84,4 +88,3 @@ class ListenChannel {
   }
 }
 
-module.exports = ListenChannel;

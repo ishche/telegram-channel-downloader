@@ -10,6 +10,9 @@ const consoleColors = {
 };
 
 class Logger {
+  logLevels
+  colors
+  icons
   constructor() {
     this.logLevels = {
       INFO: "INFO",
@@ -37,8 +40,12 @@ class Logger {
   log(
     message,
     level = this.logLevels.INFO,
-    { showTimestamp, showLevel, showIcon } = {}
+    o: Object | undefined
   ) {
+    const showTimestamp = o && o["showTimestamp"];
+    const showLevel = o && o["showLevel"];
+    const showIcon = o && o["showIcon"];
+
     const timestamp = new Date().toLocaleTimeString();
     let coloredMessage = this.colors[level] || "";
 
