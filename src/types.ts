@@ -11,7 +11,10 @@ type Downloadable = {
   pdf: boolean;
 };
 
-type LastSelection = Object;
+type LastSelection = {
+  messageOffsetId: number,
+  channelId: string
+};
 
 type CommandDesc = {
     signature: string,

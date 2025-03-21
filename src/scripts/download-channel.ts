@@ -1,6 +1,6 @@
 "use strict";
-const fs = require("fs");
-const path = require("path");
+import * as fs from "fs";
+import * as path from "path";
 import { TelegramClient } from "telegram";
 import { initAuth } from "../modules/auth";
 
@@ -10,17 +10,16 @@ import {
   getMessageDetail,
 } from "../modules/messages";
 import { getMediaPath, getMediaType, checkFileExist, appendToJSONArrayFile, wait } from "../utils/helper";
-const {
+import {
   updateLastSelection,
   getLastSelection,
-} = require("../utils/file-helper");
-const logger = require("../utils/logger");
-const { getDialogName, getAllDialogs } = require("../modules/dialoges");
-import { downloadOptionInput } from "../utils/input-helper";
-const { selectInput } = require("../utils/input-helper");
+} from "../utils/file-helper";
+import logger from "../utils/logger";
+import { getDialogName, getAllDialogs } from "../modules/dialoges";
+import { selectInput, downloadOptionInput } from "../utils/input-helper";
 
 const MAX_PARALLEL_DOWNLOAD = 5;
-const MESSAGE_LIMIT = 10;
+const MESSAGE_LIMIT = 30;
 
 
 /**
@@ -31,7 +30,7 @@ export default class DownloadChannel {
     return "Download all media from a channel";
   }
   
-  outputFolder: undefined | [];
+  outputFolder: undefined | string;
   downloadableFiles: undefined | { all: any };
 
   constructor() {
@@ -159,6 +158,7 @@ export default class DownloadChannel {
         
         updateLastSelection({
           messageOffsetId: messages[messages.length - 1].id,
+          channelId: "" + channelId
         });
 
         await wait(1);
@@ -193,7 +193,7 @@ export default class DownloadChannel {
 
     this.downloadableFiles = downloadableFiles;
 
-    const lastSelection = getLastSelection();
+    const lastSelection = getLastSelection(channelId);
     let messageOffsetId = lastSelection.messageOffsetId || 0;
 
     if (Number(lastSelection.channelId) !== Number(channelId)) {
@@ -219,8 +219,7 @@ export default class DownloadChannel {
       logger.info(`Downloading media from channel ${dialogName}`);
       await this.downloadChannel(client, channelId, messageOffsetId);
     } catch (err) {
-      logger.error("An error occurred:");
-      console.error(err);
+      logger.error("An error occurred:" + err);
     } finally {
       if (client) await client.disconnect();
       process.exit(0);

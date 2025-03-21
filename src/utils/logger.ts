@@ -64,19 +64,19 @@ class Logger {
     console.log(coloredMessage);
   }
 
-  info(message, options) {
+  info(message, options?) {
     this.log(message, this.logLevels.INFO, options);
   }
 
-  warn(message, options) {
+  warn(message, options?) {
     this.log(message, this.logLevels.WARN, options);
   }
 
-  error(message, options) {
+  error(message, options?) {
     this.log(message, this.logLevels.ERROR, options);
   }
 
-  success(message, options) {
+  success(message, options?) {
     this.log(message, this.logLevels.SUCCESS, options);
   }
 
@@ -88,4 +88,4 @@ class Logger {
 
 
 const logger = new Logger();
-module.exports = logger;
+export default logger;

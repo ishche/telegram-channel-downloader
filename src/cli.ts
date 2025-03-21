@@ -2,13 +2,11 @@
 // example command script
 // - node cli script-name --option1=value1 --option2=value2
 import * as fs from "fs";
-import * as path from "path";
-import { glob } from "glob";
 import DownloadChannel from "./scripts/download-channel";
 import ListenChannel from "./scripts/listen-channel";
 import DownloadMessage from "./scripts/download-selected-message";
 
-const logger = require("./utils/logger");
+import logger from "./utils/logger";
 
 process.on("uncaughtException", (error) => {
   logger.error(`Uncaught Exception: ${error.message}`);

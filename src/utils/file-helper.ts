@@ -3,11 +3,15 @@ import * as path from "path";
 import { logMessage } from "./helper";
 
 const CONFIG_FILE = path.join(process.cwd(), "config.json");
-const LAST_SELECTION_FILE = path.join(
-  process.cwd(),
-  "export",
-  "last_selection.json"
-);
+
+function lastSectionFilePath(channelId: number) {
+  return path.join(
+    process.cwd(),
+    "export",
+    "" + channelId,
+    "last_selection.json"
+  );
+}
 
 /**
  * Reads the content of a file synchronously.
@@ -28,11 +32,11 @@ const readFileSync = (filePath, showError = true) => {
 /**
  * Writes data to a file synchronously.
  *
- * @param {string} filePath - The path to the file where data should be written.
+ * @param filePath - The path to the file where data should be written.
  * @param {Object} data - The data to be written to the file.
  * @throws Will throw an error if writing to the file fails.
  */
-const writeFileSync = (filePath, data) => {
+const writeFileSync = (filePath: string, data) => {
   try {
     fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
     logMessage.success(`File written successfully: ${filePath}`);
@@ -81,9 +85,9 @@ export const getCredentials = () => {
  *
  * @returns {Object} The last selection data parsed from the file. Returns an empty object if an error occurs.
  */
-export const getLastSelection = () => {
+export const getLastSelection = (channelId: number) => {
   try {
-    const data = readFileSync(LAST_SELECTION_FILE, false);
+    const data = readFileSync(lastSectionFilePath(channelId), false);
     return JSON.parse(data);
   } catch (_) {
     return {};
@@ -101,8 +105,8 @@ export const getLastSelection = () => {
  */
 export const updateLastSelection = (lastSelection: LastSelection): void => {
   try {
-    const last = { ...getLastSelection(), ...lastSelection };
-    writeFileSync(LAST_SELECTION_FILE, last);
+    const last = { ...getLastSelection(+lastSelection.channelId), ...lastSelection };
+    writeFileSync(lastSectionFilePath(+lastSelection.channelId), last);
   } catch (err) {
     logMessage.error("Failed to update last selection " + JSON.stringify(err), err);
   }

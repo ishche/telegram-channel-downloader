@@ -11,7 +11,7 @@ import { numberInput, textInput, booleanInput } from '../utils/input-helper';
  * @param {boolean} [sortByName=true] - Whether to sort the dialogs by name.
  * @returns {Promise<Array>} - A promise that resolves to the list of dialogs.
  */
-const getAllDialogs = async (client, sortByName = true) => {
+export const getAllDialogs = async (client, sortByName = true) => {
     try {
         const dialogs = await client.getDialogs();
         const dialogList = dialogs.map(d => ({
@@ -129,7 +129,7 @@ const searchThroughDialogsWithSearchString = (dialogs, searchString) => {
  * @param {number} channelId - The ID of the channel.
  * @returns {string|null} - The name of the dialog, or null if not found.
  */
-const getDialogName = async (client, channelId) => {
+export const getDialogName = async (client, channelId) => {
     try {
         const diaLogPath = path.resolve(process.cwd(), "./export/dialog_list.json");
         if(!fs.existsSync(diaLogPath)) {
@@ -144,11 +144,4 @@ const getDialogName = async (client, channelId) => {
         logMessage.error(`Failed to get dialog name: ${error.message}`);
         return null;
     }
-};
-
-module.exports = {
-    getAllDialogs,
-    selectDialog,
-    searchDialog,
-    getDialogName
 };

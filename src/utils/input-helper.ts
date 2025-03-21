@@ -105,7 +105,7 @@ export const booleanInput = async (message = "Please answer with yes or no") => 
  * @param {Array<string>} [optionsArr=[]] - The list of options.
  * @returns {Promise<string>} The selected option.
  */
-const selectInput = async (message = "Please select", optionsArr = []) => {
+export const selectInput = async (message = "Please select", optionsArr = []) => {
   const question = {
     type: "list",
     name: "input",
