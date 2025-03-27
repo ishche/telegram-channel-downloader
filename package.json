@@ -31,13 +31,14 @@
   "homepage": "https://github.com/abhishekjnvk/telegram-channel-downloader#readme",
   "dependencies": {
     "ejs": "^3.1.10",
-    "glob": "^11.0.0",
-    "inquirer": "^8.2.6",
-    "mime-db": "^1.52.0",
-    "telegram": "^2.21.2"
+    "glob": "11.0.1",
+    "inquirer": "12.5.0",
+    "mime-db": "1.54.0",
+    "pg": "^8.14.1",
+    "telegram": "2.26.22"
   },
   "devDependencies": {
-    "@types/node": "^22.13.10",
+    "@types/node": "22.13.14",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.2"

@@ -186,20 +186,4 @@ export const circularStringify = (obj, indent: number = 2) => {
   return retVal;
 };
 
-// Append data to a JSON array file
-export const appendToJSONArrayFile = (filePath, dataToAppend) => {
-  try {
-    if (!fs.existsSync(filePath)) {
-      fs.writeFileSync(filePath, circularStringify(dataToAppend, 2));
-    } else {
-      const data = fs.readFileSync(filePath);
-      const json = JSON.parse(data);
-      json.push(dataToAppend);
-      fs.writeFileSync(filePath, circularStringify(json, 2));
-    }
-  } catch (e) {
-    logMessage.error(`Error appending to JSON Array file ${filePath}`);
-    console.error(e);
-  }
-};
 

@@ -1,6 +1,3 @@
-"use strict";
-import * as fs from "fs";
-import * as path from "path";
 import { TelegramClient } from "telegram";
 import { initAuth } from "../modules/auth";
 
@@ -9,7 +6,7 @@ import {
   downloadMessageMedia,
   getMessageDetail,
 } from "../modules/messages";
-import { getMediaPath, getMediaType, checkFileExist, appendToJSONArrayFile, wait } from "../utils/helper";
+import { getMediaPath, getMediaType, checkFileExist, wait } from "../utils/helper";
 import {
   updateLastSelection,
   getLastSelection,
@@ -17,6 +14,7 @@ import {
 import logger from "../utils/logger";
 import { getDialogName, getAllDialogs } from "../modules/dialoges";
 import { selectInput, downloadOptionInput } from "../utils/input-helper";
+import { MessageStorage, FileStorage } from "../storage";
 
 const MAX_PARALLEL_DOWNLOAD = 5;
 const MESSAGE_LIMIT = 30;
@@ -30,17 +28,10 @@ export default class DownloadChannel {
     return "Download all media from a channel";
   }
   
-  outputFolder: undefined | string;
   downloadableFiles: undefined | { all: any };
 
   constructor() {
-    this.outputFolder = null;
     this.downloadableFiles = null;
-
-    const exportPath = path.resolve(process.cwd(), "./export");
-    if (!fs.existsSync(exportPath)) {
-      fs.mkdirSync(exportPath);
-    }
   }
 
   /**
@@ -55,46 +46,18 @@ export default class DownloadChannel {
    * Determines if a message's media should be downloaded
    * @param {Object} message The Telegram message object
    */
-  canDownload(message) {
+  canDownload(message): boolean {
     if (!this.hasMedia(message)) return false;
-    const mediaType = getMediaType(message);
-    const mediaPath = getMediaPath(message, this.outputFolder);
-    const fileExists = checkFileExist(message, this.outputFolder);
-    const extension = path.extname(mediaPath).toLowerCase().replace(".", "");
-    const allowed =
-      this.downloadableFiles?.[mediaType] ||
-      this.downloadableFiles?.[extension] ||
-      this.downloadableFiles?.all;
-
-    return allowed && !fileExists;
-  }
-
-  /**
-   * Records messages to a JSON file
-   * @param {Array} messages The message objects
-   */
-  recordMessages(messages) {
-    const filePath = path.join(this.outputFolder, "all_message.json");
-    if (!fs.existsSync(this.outputFolder)) {
-      fs.mkdirSync(this.outputFolder, { recursive: true });
-    }
-
-    const data = messages.map((msg) => ({
-      id: msg.id,
-      message: msg.message,
-      date: msg.date,
-      out: msg.out,
-      hasMedia: !!msg.media,
-      sender: msg.fromId?.userId || msg.peerId?.userId,
-      mediaType: this.hasMedia(msg) ? getMediaType(msg) : undefined,
-      mediaPath: this.hasMedia(msg)
-        ? getMediaPath(msg, this.outputFolder)
-        : undefined,
-      mediaName: this.hasMedia(msg)
-        ? path.basename(getMediaPath(msg, this.outputFolder))
-        : undefined,
-    }));
-    appendToJSONArrayFile(filePath, data);
+    // const mediaType = getMediaType(message);
+    // const mediaPath = getMediaPath(message, this.outputFolder);
+    // const fileExists = checkFileExist(message, this.outputFolder);
+    // const extension = path.extname(mediaPath).toLowerCase().replace(".", "");
+    // const allowed = 
+      // this.downloadableFiles?.[mediaType] ||
+      // this.downloadableFiles?.[extension] ||
+      // this.downloadableFiles?.all;
+    // return allowed && !fileExists;
+    return false;
   }
 
   /**
@@ -109,11 +72,7 @@ export default class DownloadChannel {
     offsetMsgId: number = 0
   ) {
     try {
-      this.outputFolder = path.join(
-        process.cwd(),
-        "export",
-        channelId.toString()
-      );
+      let messageStorage: MessageStorage = new FileStorage(channelId);
       while (true) {
         logger.info(`New iteration offsetMsgId: ${offsetMsgId}`);
         const messages = await getMessages(
@@ -128,32 +87,35 @@ export default class DownloadChannel {
         }
         const ids = messages.map((m) => m.id);
 
+        const details = await getMessageDetail(client, channelId, ids);
         // function async downloadMessages()
         {
-          const details = await getMessageDetail(client, channelId, ids);
-          const downloadQueue: Promise<boolean>[] = [];
-          for (const msg of details) {
-            if (this.canDownload(msg)) {
-              logger.info(`Downloading ${msg.id}`);
-              const resultPromise = downloadMessageMedia(
-                client,
-                msg,
-                getMediaPath(msg, this.outputFolder)
-              );
-              downloadQueue.push(resultPromise);
-            } else {
-              // logger.info(`No media to download for ${msg.id}`);
-            }
-            if (downloadQueue.length >= MAX_PARALLEL_DOWNLOAD) {
-              logger.info(`Processing ${MAX_PARALLEL_DOWNLOAD} downloads`);
-              await Promise.all(downloadQueue);
-              downloadQueue.length = 0;
-              await wait(3);
-            }
-          }
+          // const downloadQueue: Promise<boolean>[] = [];
+          // for (const msg of details) {
+            // if (this.canDownload(msg)) {
+            //   logger.info(`Downloading ${msg.id}`);
+            //   const resultPromise = downloadMessageMedia(
+            //     client,
+            //     msg,
+            //     getMediaPath(msg, this.outputFolder)
+            //   );
+            //   downloadQueue.push(resultPromise);
+            // } else {
+            //   // logger.info(`No media to download for ${msg.id}`);
+            // }
+            // if (downloadQueue.length >= MAX_PARALLEL_DOWNLOAD) {
+            //   logger.info(`Processing ${MAX_PARALLEL_DOWNLOAD} downloads`);
+            //   await Promise.all(downloadQueue);
+            //   downloadQueue.length = 0;
+            //   await wait(3);
+            // }
+          // }
 
-          await Promise.all(downloadQueue);
-          this.recordMessages(details);
+          // await Promise.all(downloadQueue);
+          messageStorage.saveMessages(details);
+          // const delay = Math.random() * 1 + 1;
+          // logger.info(`Rest for ${delay} seconds`);
+          // await wait(delay);
         }
         
         updateLastSelection({

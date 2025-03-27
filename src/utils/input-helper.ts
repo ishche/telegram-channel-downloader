@@ -159,13 +159,13 @@ export const downloadOptionInput = async () => {
     "pdf",
   ];
 
-  let fileExtensions = await multipleChoice("Choose file to download", fileTypeArray, defaultSelected);
+  // let fileExtensions = await multipleChoice("Choose file to download", fileTypeArray, defaultSelected);
 
-  if (fileExtensions.includes("custom")) {
-    const customExtensions = await textInput("Enter file extension separated by comma: ");
-    const customExtensionsArray = customExtensions.split(",").map((e) => e.trim().replace(".", "").toLowerCase());
-    fileExtensions = [...fileExtensions, ...customExtensionsArray];
-  }
+  // if (fileExtensions.includes("custom")) {
+  //   const customExtensions = await textInput("Enter file extension separated by comma: ");
+  //   const customExtensionsArray = customExtensions.split(",").map((e) => e.trim().replace(".", "").toLowerCase());
+  //   fileExtensions = [...fileExtensions, ...customExtensionsArray];
+  // }
 
   const filesToDownload = {
     [MEDIA_TYPES.WEBPAGE]: true,
@@ -176,9 +176,9 @@ export const downloadOptionInput = async () => {
     [MEDIA_TYPES.STICKER]: true,
   };
 
-  fileExtensions.forEach((e) => {
-    filesToDownload[e] = true;
-  });
+  // fileExtensions.forEach((e) => {
+    // filesToDownload[e] = true;
+  // });
 
 
   return filesToDownload;
